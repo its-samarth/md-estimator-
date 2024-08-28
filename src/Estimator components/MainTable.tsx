@@ -1,37 +1,86 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 
 // Define column headers
-const headers = [
-  'AS NAM', 'AB', 'PCS', 'CRT', 'SIZE', 'GD%', 'FEEL', 'PCS', 'CRT', 'SIZE', 'GDS%',
-  'SH', 'CO', 'PUR', 'FL', 'CUT', 'WT%', 'P.CRT', 'POL AM', 'FL %', 'AVG', 'GD%',
-  'PCS', 'CRT', 'SIZE', 'GDS%', 'SH', 'CO', 'PUR', 'FL', 'CUT', 'WT%', 'P.CRT',
-  'POL AM', 'FL %', 'AVG', 'GD%', 'AVG', '+ -', 'AVG', 'ANT AVG', 'RBC', 'FAN', 'WT%'
+export const headers = [
+  "AS NAM",
+  "AB",
+  "PCS(default)",
+  "CRT()",
+  "SIZE()",
+  "GD%()",
+  "FEEL",
+  "PCS",
+  "CRT",
+  "SIZE",
+  "GDS%",
+  "SH",
+  "CO",
+  "PUR",
+  "FL",
+  "CUT",
+  "WT%",
+  "P.CRT",
+  "POL AM",
+  "FL %",
+  "AVG",
+  "GD%",
+  "PCS1",
+  "CRT1",
+  "SIZE1",
+  "GDS%1",
+  "SH1",
+  "CO1",
+  "PUR1",
+  "FL1",
+  "CUT1",
+  "WT%1",
+  "P.CRT1",
+  "POL AM1",
+  "FL %1",
+  "AVG1",
+  "GD%1",
+  "AVG og",
+  "+ -",
+  "AVG +-",
+  "ANT AVG",
+  "RBC",
+  "FAN",
+  "WT% final",
 ];
 
 // Define rows for the "AB" column
-const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+export const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
 // Rows with red borders
-const redBorderRows = new Set(['A', 'B', 'E', 'H', 'I']);
+const redBorderRows = new Set(["A", "B", "E", "H", "I", "J"]);
 
 const MainTable: React.FC = () => {
   // Initialize data with empty strings
-  const initialData = rows.reduce((acc, row) => ({
-    ...acc,
-    [row]: { 'AS NAM': '', 'AB': '', /* Add other columns as needed */ }
-  }), {} as { [key: string]: { [key: string]: string } });
+  const initialData = rows.reduce(
+    (acc, row) => ({
+      ...acc,
+      [row]: headers.reduce(
+        (obj, header) => ({
+          ...obj,
+          [header]: "",
+        }),
+        {}
+      ),
+    }),
+    {} as { [key: string]: { [key: string]: string } }
+  );
 
   const [data, setData] = useState(initialData);
   const firstCellRef = useRef<HTMLInputElement | null>(null);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && firstCellRef.current) {
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && firstCellRef.current) {
       const value = firstCellRef.current.value;
-      setData(prevData => ({
+      setData((prevData) => ({
         ...prevData,
         ...Object.fromEntries(
-          rows.map(row => [row, { ...prevData[row], 'AS NAM': value }])
-        )
+          rows.map((row) => [row, { ...prevData[row], "AS NAM": value }])
+        ),
       }));
       // Optionally, blur the input to remove focus after pressing Enter
       firstCellRef.current.blur();
@@ -39,47 +88,54 @@ const MainTable: React.FC = () => {
   };
 
   const containerStyle: React.CSSProperties = {
-    overflowX: 'auto', // Enable horizontal scrolling
-    maxWidth: '100%',
+    overflowX: "auto", // Enable horizontal scrolling
+    maxWidth: "100%",
   };
 
   const tableStyle: React.CSSProperties = {
-    width: 'max-content', // Allow the table to grow based on content
-    borderCollapse: 'collapse',
+    width: "max-content", // Allow the table to grow based on content
+    borderCollapse: "collapse",
   };
 
   const thStyle: React.CSSProperties = {
-    border: '1px solid #ddd',
-    padding: '8px',
-    backgroundColor: '#f4f4f4',
-    textAlign: 'left',
-    position: 'sticky',
+    border: "1px solid #ddd",
+    padding: "8px",
+    backgroundColor: "#f4f4f4",
+    textAlign: "left",
+    position: "sticky",
     top: 0,
     zIndex: 2, // Make sure header is above content
   };
 
   const tdStyle: React.CSSProperties = {
-    border: '1px solid #ddd',
-    padding: '8px',
-    backgroundColor: '#e0f7fa',
+    border: "1px solid #ddd",
+    padding: "8px",
   };
 
   const fixedHeaderCellStyle: React.CSSProperties = {
-    position: 'sticky',
+    position: "sticky",
     top: 0,
     zIndex: 2,
-    backgroundColor: '#f4f4f4', // Matching header background color
+    backgroundColor: "#f4f4f4", // Matching header background color
   };
 
   const fixedCellStyle: React.CSSProperties = {
-    position: 'sticky',
+    position: "sticky",
     left: 0,
-    backgroundColor: '#e0f7fa', // Consistent background for cells
+    backgroundColor: "#e0f7fa", // Consistent background for cells
     zIndex: 1,
   };
 
   const rowBorderStyle: React.CSSProperties = {
-    borderBottom: '2px solid red', // Red border for specified rows
+    borderBottom: "2px solid red", // Red border for specified rows
+  };
+
+  // Define column width styles
+  const columnWidths: { [key: string]: React.CSSProperties } = {
+    "AS NAM": { width: "100px" },
+    AB: { width: "50px" },
+    // Default width for all other columns
+    default: { width: "40px" },
   };
 
   return (
@@ -94,6 +150,7 @@ const MainTable: React.FC = () => {
                 style={{
                   ...thStyle,
                   ...(index === 0 || index === 1 ? fixedHeaderCellStyle : {}),
+                  ...(columnWidths[header] || {}), // Apply column width styles
                 }}
               >
                 {header}
@@ -112,23 +169,57 @@ const MainTable: React.FC = () => {
                   key={colIndex}
                   style={{
                     ...tdStyle,
-                    ...(colIndex === 0 || colIndex === 1 ? fixedCellStyle : {}),
+                    ...(columnWidths[header] || columnWidths["default"]), // Apply column width styles
+                    ...(header === "AS NAM" || header === "AB"
+                      ? fixedCellStyle
+                      : {}),
                   }}
                 >
-                  {header === 'AS NAM' && rowIndex === 0 ? (
+                  {header === "AS NAM" && rowIndex === 0 ? (
                     <input
                       type="text"
                       ref={firstCellRef}
-                      value={data[row]['AS NAM']}
-                      onChange={(e) => setData(prevData => ({
-                        ...prevData,
-                        [row]: { ...prevData[row], 'AS NAM': e.target.value }
-                      }))}
-                      onKeyDown={handleKeyDown}
-                      style={{ width: '100%', border: 'none', background: 'transparent' }}
+                      value={data[row]["AS NAM"]}
+                      onChange={(e) =>
+                        setData((prevData) => ({
+                          ...prevData,
+                          ...Object.fromEntries(
+                            rows.map((row) => [
+                              row,
+                              { ...prevData[row], "AS NAM": e.target.value },
+                            ])
+                          ),
+                        }))
+                      }
+                      onKeyDown={handleEnter}
+                      style={{
+                        width: "100%",
+                        border: "none",
+                        background: "transparent",
+                      }}
                     />
+                  ) : header === "AB" ? (
+                    colIndex === 1 ? (
+                      row
+                    ) : (
+                      data[row][header]
+                    ) // Display 'AB' values or other data
                   ) : (
-                    colIndex === 1 ? row : data[row][header] // Display 'AB' values or other data
+                    <input
+                      type="text"
+                      value={data[row][header]}
+                      onChange={(e) =>
+                        setData((prevData) => ({
+                          ...prevData,
+                          [row]: { ...prevData[row], [header]: e.target.value },
+                        }))
+                      }
+                      style={{
+                        width: "100%",
+                        border: "none",
+                        background: "transparent",
+                      }}
+                    />
                   )}
                 </td>
               ))}
