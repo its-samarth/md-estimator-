@@ -92,21 +92,9 @@ const tableStyle: React.CSSProperties = {
   return (
     <div>
       <ConnectionTester />
-      <HeaderTable />
-      <div style={containerStyle}>
-        <div style={tableStyle}>
-          <MainTable />
-        </div>
-        <div style={tableStyle}>
-          <CalculationTable />
-        </div>
-        <div style={tableStyle}>
-          <CalculationTable />
-        </div>
-        <div style={tableStyle}>
-          <AverageTable />
-        </div>
-      </div>
+      <HeaderTable/>
+      <MainTable/>
+     
     
       {/*
         <DataTable/>
