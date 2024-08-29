@@ -27,7 +27,7 @@ const RoughTable: React.FC = () => {
     const fetchDataForLotNo = async () => {
       if (selectedLot) {
         const fetchedData = await fetchData(selectedLot);
-        console.log('Fetched data:', fetchedData);
+        //console.log('Fetched data:', fetchedData);
         if (fetchedData) {
           setData([fetchedData]); // Save fetched data to the store
         } else {

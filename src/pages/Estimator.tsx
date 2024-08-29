@@ -7,7 +7,9 @@ function Estimator() {
   return (
     <div>
         <RoughData/>
+        {/*
         <TrialComponent/>
+        */}
         <RoughtTable/>
     </div>
   )
