@@ -1,0 +1,62 @@
+/* Table.css */
+
+/* Container styling */
+.container {
+    padding: 10px; /* Reduced padding to minimize space */
+    max-width: 100%; /* Allow container to use the full width of its parent */
+    margin: 0 auto; /* Center container */
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Heading styling */
+  .heading {
+    text-align: center; /* Center the heading */
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Table styling */
+  .table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures borders are merged */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header row styling */
+  .header-row {
+    background-color: #f4f4f4;
+  }
+  
+  /* Header cell styling */
+  .header-cell {
+    padding: 10px;
+    border: 1px solid #ddd; /* Add border to header cells */
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  /* Body row styling */
+  .body-row:nth-child(even) {
+    background-color: #fafafa;
+  }
+  
+  .body-row:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Body cell styling */
+  .body-cell {
+    padding: 10px;
+    border: 1px solid #ddd; /* Add border to body cells */
+    text-align: left;
+    color: #666;
+  }
+  
+  /* Editable cell styling */
+  .editable-cell {
+    border: none;
+    background-color: transparent;
+    width: 100%;
+  }
+  

@@ -1,60 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table';
-import axios from 'axios';
-import './RoughData.css';  // Import the CSS file
-
-interface DataRow {
-  [key: string]: any; // Represents a dynamic object with string keys
-}
+import useDataStore from '../zustand/dataStore';
+import useFetchStore from '../zustand/fetchStore';
+import './RoughTable.css';
 
 const RoughTable: React.FC = () => {
-  const [data, setData] = useState<DataRow[]>([]);
-  const [columns, setColumns] = useState<ColumnDef<DataRow, any>[]>([]);
-  const [lotNumbers, setLotNumbers] = useState<string[]>([]);
-  const [selectedLot, setSelectedLot] = useState<string>('');
+  // Access data and methods from the store
+  const { data, setData, selectedLot, setSelectedLot } = useDataStore(state => ({
+    data: state.data,
+    setData: state.setData,
+    selectedLot: state.selectedLot,
+    setSelectedLot: state.setSelectedLot,
+  }));
 
-  // Fetch LOT NOs for the dropdown
+  const { lotNumbers, fetchLotNumbers, fetchData } = useFetchStore(state => ({
+    lotNumbers: state.lotNumbers,
+    fetchLotNumbers: state.fetchLotNumbers,
+    fetchData: state.fetchData,
+  }));
+
   useEffect(() => {
-    const fetchLotNumbers = async () => {
-      try {
-        const response = await axios.get<string[]>('http://localhost:5000/api/data/lot-numbers');
-        setLotNumbers(response.data);
-      } catch (error) {
-        console.error('Error fetching lot numbers:', error);
+    fetchLotNumbers();
+  }, [fetchLotNumbers]);
+
+  useEffect(() => {
+    const fetchDataForLotNo = async () => {
+      if (selectedLot) {
+        const fetchedData = await fetchData(selectedLot);
+        console.log('Fetched data:', fetchedData);
+        if (fetchedData) {
+          setData([fetchedData]); // Save fetched data to the store
+        } else {
+          setData([]); // Set to empty if no data is returned
+        }
       }
     };
 
-    fetchLotNumbers();
-  }, []);
+    fetchDataForLotNo();
+  }, [selectedLot, fetchData, setData]);
 
-  // Fetch data based on selected LOT NO
-  useEffect(() => {
-    if (selectedLot) {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get<DataRow>(`http://localhost:5000/api/data/rough-table-singledata?lotNo=${selectedLot}`);
-          const row = response.data;
+  // Generate columns dynamically based on the data in the store
+  const columns: ColumnDef<any>[] = data.length > 0 ? Object.keys(data[0]).map((key) => ({
+    accessorKey: key,
+    header: key.toUpperCase(),
+  })) : [];
 
-          if (row) {
-            const columnDefs: ColumnDef<DataRow, any>[] = Object.keys(row).map(key => ({
-              accessorKey: key,
-              header: key,
-            }));
-
-            setColumns(columnDefs);
-            setData([row]); // Set data as an array with one row
-          } else {
-            setData([]); // Clear data if no row found
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      fetchData();
-    }
-  }, [selectedLot]);
-
+  // Initialize table instance using the data from the store
   const table = useReactTable({
     data,
     columns,
@@ -63,7 +54,7 @@ const RoughTable: React.FC = () => {
 
   return (
     <div className="container">
-      <h1 className="heading">Rough Data Table</h1>
+      <h1 className="heading">Select LOT NO</h1>
 
       {/* Dropdown for selecting LOT NO */}
       <div className="dropdown-container">
@@ -82,31 +73,37 @@ const RoughTable: React.FC = () => {
         </select>
       </div>
 
-      {/* Table */}
-      <table className="table">
-        <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id} className="header-row">
-              {headerGroup.headers.map(header => (
-                <th key={header.id} className="header-cell">
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
+      {/* Render table using TanStack */}
+      <div>
+        {data.length > 0 ? (
+          <table className="table">
+            <thead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id} className="header-row">
+                  {headerGroup.headers.map(header => (
+                    <th key={header.id} className="header-cell">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map(row => (
-            <tr key={row.id} className="body-row">
-              {row.getVisibleCells().map(cell => (
-                <td key={cell.id} className="body-cell">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id} className="body-row">
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id} className="body-cell">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        ) : (
+          <p>No data available. Please select a LOT NO.</p>
+        )}
+      </div>
     </div>
   );
 };

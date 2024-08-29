@@ -9,7 +9,7 @@ import {
 import * as XLSX from "xlsx";
 import Table from "../components/Table";
 import ConnectionTester from "../components/ConnectionTester";
-import DataTable from "../components/RoughData";
+import DataTable from "../components/EstimatorTable";
 import HeaderTable from "../Estimator components/HeaderTable";
 import MainTable from "../Estimator components/MainTable";
 import CalculationTable from "../Estimator components/CalculationTable";

@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table';
+import { useReactTable, getCoreRowModel, ColumnDef, flexRender, CellContext } from '@tanstack/react-table';
 import axios from 'axios';
-import './RoughData.css';  // Import the CSS file
+import './EstimatorTable.css';
+import useDataStore from '../zustand/dataStore';
 
 interface DataRow {
   [key: string]: any; // Represents a dynamic object with string keys
 }
 
-const RoughData: React.FC = () => {
+const EstimatorTable: React.FC = () => {
   const [data, setData] = useState<DataRow[]>([]);
   const [columns, setColumns] = useState<ColumnDef<DataRow, any>[]>([]);
-
+  const { storedata, selectedLot } = useDataStore((state) => ({
+    storedata: state.data,
+    selectedLot: state.selectedLot,
+  }));
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -18,9 +22,11 @@ const RoughData: React.FC = () => {
         const rows = response.data;
 
         if (rows.length > 0) {
-          const columnDefs: ColumnDef<DataRow, any>[] = Object.keys(rows[0]).map(key => ({
+          // Dynamically create column definitions
+          const columnDefs: ColumnDef<DataRow, any>[] = Object.keys(rows[0]).map((key, index) => ({
             accessorKey: key,
             header: key,
+            cell: index >= 3 ? EditableCell : DefaultCell, // Editable only for columns after the first 3
           }));
 
           setColumns(columnDefs);
@@ -34,6 +40,31 @@ const RoughData: React.FC = () => {
     fetchData();
   }, []);
 
+  // Default cell component for non-editable cells
+  const DefaultCell = ({ getValue }: CellContext<DataRow, any>) => {
+    return <span>{getValue()}</span>;
+  };
+
+  // Editable cell component
+  const EditableCell = ({ getValue, row, column }: CellContext<DataRow, any>) => {
+    const initialValue = getValue();
+    const [editableValue, setEditableValue] = useState(initialValue);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEditableValue(e.target.value);
+      // Optionally, handle the updated value, e.g., send it to an API or update state
+    };
+
+    return (
+      <input
+        type="text"
+        value={editableValue}
+        onChange={handleChange}
+        className="editable-cell" // Apply editable cell styling
+      />
+    );
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -42,7 +73,15 @@ const RoughData: React.FC = () => {
 
   return (
     <div className="container">
+      
       <h1 className="heading">Estimator Data Table</h1>
+      <div>
+  
+        <h2>Data</h2>
+        <pre>{JSON.stringify(storedata, null, 2)}</pre>
+        <pre>{JSON.stringify(selectedLot, null, 2)}</pre>
+      </div>
+      
       <table className="table">
         <thead>
           {table.getHeaderGroups().map(headerGroup => (
@@ -67,8 +106,9 @@ const RoughData: React.FC = () => {
           ))}
         </tbody>
       </table>
+    
     </div>
   );
 };
 
-export default RoughData;
+export default EstimatorTable;
