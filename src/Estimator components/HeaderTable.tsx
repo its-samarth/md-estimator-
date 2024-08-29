@@ -30,14 +30,14 @@ const columns: ColumnDef<DataRow, any>[] = [
 // Sample data
 const data: DataRow[] = [
   {
-    lotNo: 'AC267',
-    no: 267,
-    pcs: 30,
-    carat: 170.27,
-    size: 5.68,
-    est: 2931.76,
+    lotNo: 'AC268',
+    no: 268,
+    pcs: 45,
+    carat: 250.93,
+    size: 5.58,
+    est: 2393.04,
     desInvReal: '0',
-    desName: 'Z HIGH 1ST WHT',
+    desName: 'MB HIGH 1ST WHT',
     buyerName: '0',
     sizeFrTo: '5-10',
     origin: 'CAN',

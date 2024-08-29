@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { calculateColumnAverage, calculateColumnSum, updateData } from "../calculations/UpdateData";
 
 // Define column headers
 export const headers = [
@@ -48,9 +49,25 @@ export const headers = [
   "WT% final",
 ];
 
-// Define rows for the "AB" column
-export const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+var calpcs = 45,
+  calcarat = 250,
+  calsize = 5.58,
+  est = 2393;
 
+// Define rows for the "AB" column
+export const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J","all"];
+const feelrows = [
+    1,
+    2,
+    3.1,
+    3.2,
+    3.3,
+    4.1,
+    4.2,
+    4.3,
+    5.1
+  ];
+  
 // Rows with red borders
 const redBorderRows = new Set(["A", "B", "E", "H", "I", "J"]);
 
@@ -86,7 +103,30 @@ const MainTable: React.FC = () => {
       firstCellRef.current.blur();
     }
   };
+/*const updateData = (row: string, header: string, value: string) => {
+    setData((prevData) => {
+      const updatedRow = { ...prevData[row], [header]: value };
 
+      // Perform division if necessary
+      if (header === "CRT()" || header === "PCS(default)") {
+        const crtValue = parseFloat(updatedRow["CRT()"] || "0");
+        const pcsValue = parseFloat(updatedRow["PCS(default)"] || "0");
+
+        const sizeValue =
+          pcsValue !== 0 ? (crtValue / pcsValue).toFixed(2) : "0"; // Avoid division by zero
+
+        updatedRow["SIZE()"] = sizeValue; // Update the 'SIZE' column with the result
+      }
+      if (header === 'CRT()') {
+        const crtValue = parseFloat(value || '0');
+        const gdPercentage = calcarat !== 0 ? ((crtValue / calcarat) * 100).toFixed(2) + '%' : '0%'; // Format as percentage
+        updatedRow['GD%()'] = gdPercentage; // Update the 'GD%()' column with the result
+      }
+
+      return { ...prevData, [row]: updatedRow };
+    });
+  };
+*/  
   const containerStyle: React.CSSProperties = {
     overflowX: "auto", // Enable horizontal scrolling
     maxWidth: "100%",
@@ -135,8 +175,19 @@ const MainTable: React.FC = () => {
     "AS NAM": { width: "100px" },
     AB: { width: "50px" },
     // Default width for all other columns
-    default: { width: "40px" },
+    default: { width: "50px" },
   };
+
+  
+
+  const pcsDefaultSum = calculateColumnSum(data, 'PCS(default)');
+  const crtSum = calculateColumnSum(data, 'CRT()');
+  const sizeSum = calculateColumnAverage(data, 'SIZE()');
+  const gdPercentageSum = calculateColumnSum(data, 'GD%()');
+  const pcsSum = calculateColumnSum(data, 'PCS');
+  const crtSumAlt = calculateColumnSum(data, 'CRT');
+  const sizeSumAlt = calculateColumnAverage(data, 'SIZE');
+  const gdsSum = calculateColumnSum(data, 'GDS%');
 
   return (
     <div style={containerStyle}>
@@ -169,57 +220,73 @@ const MainTable: React.FC = () => {
                   key={colIndex}
                   style={{
                     ...tdStyle,
-                    ...(columnWidths[header] || columnWidths["default"]), // Apply column width styles
-                    ...(header === "AS NAM" || header === "AB"
+                    ...(columnWidths[header] || columnWidths['default']), // Apply column width styles
+                    ...(header === 'AS NAM' || header === 'AB'
                       ? fixedCellStyle
                       : {}),
                   }}
                 >
-                  {header === "AS NAM" && rowIndex === 0 ? (
+                  {header === 'AS NAM' && rowIndex === 0 ? (
                     <input
                       type="text"
                       ref={firstCellRef}
-                      value={data[row]["AS NAM"]}
+                      value={data[row]['AS NAM']}
                       onChange={(e) =>
                         setData((prevData) => ({
                           ...prevData,
                           ...Object.fromEntries(
                             rows.map((row) => [
                               row,
-                              { ...prevData[row], "AS NAM": e.target.value },
+                              { ...prevData[row], 'AS NAM': e.target.value },
                             ])
                           ),
                         }))
                       }
                       onKeyDown={handleEnter}
                       style={{
-                        width: "100%",
-                        border: "none",
-                        background: "transparent",
+                        width: '100%',
+                        border: 'none',
+                        background: 'transparent',
                       }}
                     />
-                  ) : header === "AB" ? (
-                    colIndex === 1 ? (
+                  ) : header === 'AB' ? (
+                    row === 'all' ? (
                       row
                     ) : (
                       data[row][header]
-                    ) // Display 'AB' values or other data
+                    )
                   ) : (
                     <input
                       type="text"
                       value={data[row][header]}
                       onChange={(e) =>
-                        setData((prevData) => ({
-                          ...prevData,
-                          [row]: { ...prevData[row], [header]: e.target.value },
-                        }))
+                        updateData(
+                          row,
+                          header,
+                          e.target.value,
+                          setData,
+                          calcarat,
+                          
+                        )
                       }
                       style={{
-                        width: "100%",
-                        border: "none",
-                        background: "transparent",
+                        width: '100%',
+                        border: 'none',
+                        background: 'transparent',
                       }}
                     />
+                  )}
+                  {row === 'all' && (
+                    {
+                      'PCS(default)': pcsDefaultSum,
+                      'CRT()': crtSum,
+                      'SIZE()': sizeSum,
+                      'GD%()': gdPercentageSum,
+                      'PCS': pcsSum,
+                      'CRT': crtSumAlt,
+                      'SIZE': sizeSumAlt,
+                      'GDS%': gdsSum
+                    }[header] || null
                   )}
                 </td>
               ))}
