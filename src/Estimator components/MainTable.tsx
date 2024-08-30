@@ -103,30 +103,7 @@ const MainTable: React.FC = () => {
       firstCellRef.current.blur();
     }
   };
-/*const updateData = (row: string, header: string, value: string) => {
-    setData((prevData) => {
-      const updatedRow = { ...prevData[row], [header]: value };
 
-      // Perform division if necessary
-      if (header === "CRT()" || header === "PCS(default)") {
-        const crtValue = parseFloat(updatedRow["CRT()"] || "0");
-        const pcsValue = parseFloat(updatedRow["PCS(default)"] || "0");
-
-        const sizeValue =
-          pcsValue !== 0 ? (crtValue / pcsValue).toFixed(2) : "0"; // Avoid division by zero
-
-        updatedRow["SIZE()"] = sizeValue; // Update the 'SIZE' column with the result
-      }
-      if (header === 'CRT()') {
-        const crtValue = parseFloat(value || '0');
-        const gdPercentage = calcarat !== 0 ? ((crtValue / calcarat) * 100).toFixed(2) + '%' : '0%'; // Format as percentage
-        updatedRow['GD%()'] = gdPercentage; // Update the 'GD%()' column with the result
-      }
-
-      return { ...prevData, [row]: updatedRow };
-    });
-  };
-*/  
   const containerStyle: React.CSSProperties = {
     overflowX: "auto", // Enable horizontal scrolling
     maxWidth: "100%",
